@@ -1,0 +1,658 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Bit Language</title>
+        <style>
+            @import url("https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap");
+
+            :root {
+                --bit: #3285a8;
+                --bit-bright: #32a0cf;
+                --bit-dim: #1c689e;
+                --bg: #0c0e11;
+                --card: #111419;
+                --card-hover: #161b23;
+                --border: #1c2230;
+                --border-hi: #2a3447;
+                --text: #d8e0ec;
+                --muted: #64748b;
+                --muted2: #3d4f66;
+            }
+
+            *,
+            *::before,
+            *::after {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+                font-family: "Space Mono", monospace;
+            }
+
+            body {
+                background: var(--bg);
+                color: var(--text);
+                line-height: 1.6;
+                overflow-x: hidden;
+            }
+
+            body::before {
+                content: "";
+                position: fixed;
+                inset: 0;
+                background-image:
+                    linear-gradient(
+                        rgba(255, 255, 255, 0.024) 1px,
+                        transparent 1px
+                    ),
+                    linear-gradient(
+                        90deg,
+                        rgba(255, 255, 255, 0.024) 1px,
+                        transparent 1px
+                    );
+                background-size: 48px 48px;
+                z-index: -1;
+                pointer-events: none;
+            }
+
+            /* ─── Animations ─── */
+
+            @keyframes fadeUp {
+                from {
+                    opacity: 0;
+                    transform: translateY(20px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+            @keyframes fadeIn {
+                from {
+                    opacity: 0;
+                }
+                to {
+                    opacity: 1;
+                }
+            }
+            @keyframes float {
+                0%,
+                100% {
+                    transform: translateY(0);
+                }
+                50% {
+                    transform: translateY(-6px);
+                }
+            }
+            @keyframes card3dRise {
+                0% {
+                    opacity: 0;
+                    transform: perspective(900px) rotateX(32deg)
+                        translateY(36px) scale(0.95);
+                    filter: blur(3px);
+                }
+                55% {
+                    opacity: 1;
+                    filter: blur(0);
+                }
+                78% {
+                    transform: perspective(900px) rotateX(-2.5deg)
+                        translateY(-3px) scale(1.004);
+                }
+                100% {
+                    opacity: 1;
+                    transform: perspective(900px) rotateX(0) translateY(0)
+                        scale(1);
+                    filter: blur(0);
+                }
+            }
+
+            /* ─── Navbar ─── */
+
+            header {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                padding: 0 3rem;
+                height: 54px;
+                background: rgba(10, 12, 15, 0.9);
+                backdrop-filter: blur(16px);
+                border-bottom: 1px solid var(--border);
+                position: sticky;
+                top: 0;
+                z-index: 100;
+                animation: fadeIn 0.5s ease both;
+            }
+
+            .nav-brand {
+                display: flex;
+                align-items: center;
+                gap: 0.6rem;
+                text-decoration: none;
+            }
+            .nav-brand-name {
+                font-size: 0.82rem;
+                font-weight: 700;
+                letter-spacing: 3px;
+                color: var(--bit-bright);
+            }
+
+            nav {
+                display: flex;
+                gap: 0.15rem;
+            }
+            nav a {
+                font-size: 0.75rem;
+                font-weight: 700;
+                letter-spacing: 0.8px;
+                color: var(--muted);
+                text-decoration: none;
+                padding: 0.3rem 0.8rem;
+                border-radius: 5px;
+                transition:
+                    color 0.15s,
+                    background 0.15s;
+            }
+            nav a:hover {
+                color: var(--text);
+                background: var(--border);
+            }
+            nav a.active {
+                color: var(--bit-bright);
+            }
+            .base {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                padding: 7rem 2rem 5.5rem;
+                text-align: center;
+            }
+
+            .title {
+                font-size: 4.2rem;
+                font-weight: 800;
+                letter-spacing: 8px;
+                color: var(--text);
+                line-height: 1;
+                animation: fadeUp 0.65s 0.22s both;
+            }
+
+            .slogan {
+                font-size: 0.88rem;
+                color: var(--muted);
+                margin-top: 1.1rem;
+                animation: fadeUp 0.65s 0.3s both;
+            }
+
+            .hero-pills {
+                display: flex;
+                gap: 0.5rem;
+                margin-top: 2.2rem;
+                flex-wrap: wrap;
+                justify-content: center;
+                animation: fadeUp 0.65s 0.4s both;
+            }
+            .pill {
+                font-size: 0.68rem;
+                letter-spacing: 0.8px;
+                padding: 0.28rem 0.8rem;
+                border-radius: 99px;
+                border: 1px solid var(--border-hi);
+                color: var(--muted);
+                background: transparent;
+            }
+
+            /* ─── Section ─── */
+
+            .section {
+                padding: 4.5rem 2rem;
+                max-width: 1140px;
+                margin: auto;
+            }
+
+            .section-header {
+                display: flex;
+                align-items: center;
+                gap: 1rem;
+                margin-bottom: 2rem;
+            }
+            .section-header-line {
+                flex: 1;
+                height: 1px;
+                background: var(--border);
+            }
+            .section-header-text {
+                font-size: 0.65rem;
+                letter-spacing: 3px;
+                text-transform: uppercase;
+                color: var(--muted2);
+                white-space: nowrap;
+            }
+
+            /* ─── Feature grid ─── */
+
+            .features-grid {
+                display: grid;
+                grid-template-columns: repeat(3, 1fr);
+                border: 1px solid var(--border);
+                border-radius: 14px;
+                overflow: hidden;
+            }
+
+            .feature-card {
+                background: var(--card);
+                padding: 2rem 1.8rem;
+                border-right: 1px solid var(--border);
+                border-bottom: 1px solid var(--border);
+                border-top: 2px solid transparent;
+                transition:
+                    background 0.18s,
+                    border-top-color 0.18s;
+                cursor: default;
+                user-select: none;
+            }
+            .feature-card:nth-child(3n) {
+                border-right: none;
+            }
+            .feature-card:nth-child(n + 4) {
+                border-bottom: none;
+            }
+            .feature-card:hover {
+                background: var(--card-hover);
+                border-top-color: var(--bit-dim);
+            }
+            .feature-icon {
+                display: block;
+                font-size: 1.4rem;
+                margin-bottom: 0.9rem;
+            }
+
+            .feature-title {
+                font-size: 0.84rem;
+                font-weight: 700;
+                color: var(--text);
+                letter-spacing: 0.3px;
+                margin-bottom: 0.45rem;
+            }
+            .feature-desc {
+                color: var(--muted);
+                font-size: 0.77rem;
+                line-height: 1.65;
+            }
+
+            /* ─── Tools grid ─── */
+
+            .tools-grid {
+                display: grid;
+                grid-template-columns: repeat(4, 1fr);
+                border: 1px solid var(--border);
+                border-radius: 14px;
+                overflow: hidden;
+            }
+
+            .tool-card {
+                opacity: 0;
+                cursor: default;
+                user-select: none;
+            }
+            .tool-card.visible {
+                animation: card3dRise 0.58s cubic-bezier(0.22, 1, 0.36, 1) both;
+            }
+
+            .tool-inner {
+                background: var(--card);
+                padding: 1.5rem 1.35rem 1.4rem;
+                height: 100%;
+                display: flex;
+                flex-direction: column;
+                border-right: 1px solid var(--border);
+                border-bottom: 1px solid var(--border);
+                border-top: 2px solid transparent;
+                transition:
+                    background 0.18s,
+                    border-top-color 0.18s;
+            }
+            /* remove right border on last col, bottom on last row */
+            .tool-card:nth-child(4n) .tool-inner {
+                border-right: none;
+            }
+
+            .tool-card:hover .tool-inner {
+                background: var(--card-hover);
+                border-top-color: var(--bit-dim);
+            }
+
+            .tool-head {
+                display: flex;
+                align-items: flex-start;
+                justify-content: space-between;
+                gap: 0.4rem;
+                margin-bottom: 0.75rem;
+            }
+
+            .tool-emoji {
+                font-size: 1.35rem;
+                line-height: 1;
+                transition: transform 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            }
+            .tool-card:hover .tool-emoji {
+                transform: scale(1.16) rotate(-5deg);
+            }
+
+            .tool-badge {
+                font-size: 0.58rem;
+                font-weight: 700;
+                letter-spacing: 1px;
+                text-transform: uppercase;
+                color: var(--bit);
+                background: rgba(0, 148, 97, 0.08);
+                border: 1px solid rgba(0, 148, 97, 0.18);
+                padding: 2px 6px;
+                border-radius: 4px;
+                white-space: nowrap;
+                margin-top: 1px;
+            }
+
+            .wip-badge {
+                font-size: 0.55rem;
+                font-weight: 700;
+                letter-spacing: 1px;
+                text-transform: uppercase;
+                color: var(--muted2);
+                background: rgba(255, 255, 255, 0.04);
+                border: 1px solid var(--border-hi);
+                padding: 3.2px 6px;
+                border-radius: 4px;
+                white-space: nowrap;
+            }
+
+            .tool-head-right {
+                display: flex;
+                align-items: flex-start;
+                gap: 0.3rem;
+                flex-wrap: wrap;
+                justify-content: flex-end;
+            }
+
+            .tool-name {
+                font-size: 0.95rem;
+                font-weight: 800;
+                letter-spacing: 0.8px;
+                color: var(--text);
+                margin-bottom: 0.35rem;
+            }
+
+            .tool-desc {
+                font-size: 0.73rem;
+                color: var(--muted);
+                line-height: 1.6;
+            }
+
+            /* ─── Reveal ─── */
+
+            .reveal {
+                opacity: 0;
+                transform: translateY(18px);
+                transition:
+                    opacity 0.55s cubic-bezier(0.22, 1, 0.36, 1),
+                    transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+            }
+            .reveal.visible {
+                opacity: 1;
+                transform: none;
+            }
+
+            /* ─── Footer ─── */
+
+            footer {
+                text-align: center;
+                padding: 2.5rem;
+                font-size: 0.7rem;
+                letter-spacing: 1px;
+                color: var(--muted2);
+                border-top: 1px solid var(--border);
+            }
+
+            /* ─── Responsive ─── */
+            @media (max-width: 960px) {
+                .features-grid {
+                    grid-template-columns: repeat(2, 1fr);
+                }
+                .tools-grid {
+                    grid-template-columns: repeat(2, 1fr);
+                }
+                .tool-card:nth-child(4n) .tool-inner {
+                    border-right: 1px solid var(--border);
+                }
+                .tool-card:nth-child(2n) .tool-inner {
+                    border-right: none;
+                }
+            }
+            @media (max-width: 560px) {
+                .features-grid,
+                .tools-grid {
+                    grid-template-columns: 1fr;
+                }
+                .tool-inner,
+                .feature-card {
+                    border-right: none !important;
+                }
+                .title {
+                    font-size: 2.8rem;
+                }
+                header {
+                    padding: 0 1.2rem;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <header>
+            <a class="nav-brand" href="index.html">🛰️</a>
+            <nav>
+                <a href="index.html" class="active">Home</a>
+                <a href="blog.html">News</a>
+                <a href="https://github.com/bit-rs/bit">GitHub</a>
+            </nav>
+        </header>
+
+        <section class="base">
+            <h1 class="title">🛰️bit</h1>
+            <p class="slogan">Simple, tiny — batteries included.</p>
+            <div class="hero-pills">
+                <span class="pill">Written in Rust</span>
+                <span class="pill">Cross-platform</span>
+                <span class="pill">MIT License</span>
+            </div>
+        </section>
+
+        <!-- Features -->
+        <section class="section">
+            <div class="section-header reveal">
+                <div class="section-header-line"></div>
+                <div class="section-header-text">Features</div>
+                <div class="section-header-line"></div>
+            </div>
+            <div class="features-grid reveal">
+                <div class="feature-card">
+                    <span class="feature-icon">⚡</span>
+                    <div class="feature-title">Fast & Lightweight</div>
+                    <div class="feature-desc">
+                        Minimal interpreter written in Rust. Starts in
+                        milliseconds, runs anywhere.
+                    </div>
+                </div>
+                <div class="feature-card">
+                    <span class="feature-icon">📐</span>
+                    <div class="feature-title">Simple by Design</div>
+                    <div class="feature-desc">
+                        Clean syntax with no surprises. Easy to learn, hard to
+                        misuse.
+                    </div>
+                </div>
+                <div class="feature-card">
+                    <span class="feature-icon">🧩</span>
+                    <div class="feature-title">Modules System</div>
+                    <div class="feature-desc">
+                        Clean module architecture for scalable projects of any
+                        size.
+                    </div>
+                </div>
+                <div class="feature-card">
+                    <span class="feature-icon">📦</span>
+                    <div class="feature-title">Package Ecosystem</div>
+                    <div class="feature-desc">
+                        Seamless dependency management with iggy. Install,
+                        update, done.
+                    </div>
+                </div>
+                <div class="feature-card">
+                    <span class="feature-icon">🧠</span>
+                    <div class="feature-title">Modern Syntax</div>
+                    <div class="feature-desc">
+                        Expressive, clean and developer-friendly language
+                        design.
+                    </div>
+                </div>
+                <div class="feature-card">
+                    <span class="feature-icon">🌍</span>
+                    <div class="feature-title">Cross-Platform</div>
+                    <div class="feature-desc">
+                        Runs consistently across Linux, macOS, Windows — and
+                        RaspberryPI.
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Tools -->
+        <section class="section">
+            <div class="section-header reveal">
+                <div class="section-header-line"></div>
+                <div class="section-header-text">Tools</div>
+                <div class="section-header-line"></div>
+            </div>
+            <div class="tools-grid">
+                <div class="tool-card">
+                    <div class="tool-inner">
+                        <div class="tool-head">
+                            <div class="tool-emoji">📡</div>
+                            <div class="tool-badge">LSP</div>
+                        </div>
+                        <div class="tool-name">signal</div>
+                        <div class="tool-desc">
+                            Keep your Bit code in orbit with live feedback,
+                            autocompletion, and editor integration
+                        </div>
+                    </div>
+                </div>
+                <div class="tool-card">
+                    <div class="tool-inner">
+                        <div class="tool-head">
+                            <div class="tool-emoji">📦</div>
+                            <div class="tool-badge">Package manager</div>
+                        </div>
+                        <div class="tool-name">byte</div>
+                        <div class="tool-desc">
+                            Install, update, and resolve dependencies for your
+                            bit projects with ease.
+                        </div>
+                    </div>
+                </div>
+                <div class="tool-card">
+                    <div class="tool-inner">
+                        <div class="tool-head">
+                            <div class="tool-emoji">🔭</div>
+                            <div class="tool-badge">Linter</div>
+                        </div>
+                        <div class="tool-name">scopium</div>
+                        <div class="tool-desc">
+                            Scan, analyze, and lint in real time to keep your
+                            code clean and readable
+                        </div>
+                    </div>
+                </div>
+                <div class="tool-card">
+                    <div class="tool-inner">
+                        <div class="tool-head">
+                            <div class="tool-emoji">🌠</div>
+                            <div class="tool-badge">Formatter</div>
+                        </div>
+                        <div class="tool-name">nova</div>
+                        <div class="tool-desc">
+                            Make your code beautiful and consistent in seconds.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <footer>
+            © 2026 bit Language &nbsp;·&nbsp; Follow the direction 🧭
+        </footer>
+
+        <script>
+            // Feature section reveal
+            const revealObs = new IntersectionObserver(
+                (entries) => {
+                    entries.forEach((e) => {
+                        if (e.isIntersecting) e.target.classList.add("visible");
+                    });
+                },
+                { threshold: 0.08 },
+            );
+            document
+                .querySelectorAll(".reveal")
+                .forEach((el) => revealObs.observe(el));
+
+            // Tool cards – 3D rise, plays both ways on scroll
+            const COLS = 4;
+            const cards = document.querySelectorAll(".tool-card");
+
+            const toolObs = new IntersectionObserver(
+                (entries) => {
+                    entries.forEach((entry) => {
+                        const card = entry.target;
+                        const col = Array.from(cards).indexOf(card) % COLS;
+                        if (entry.isIntersecting) {
+                            card.classList.remove("visible");
+                            void card.offsetWidth;
+                            card.style.animationDelay = col * 55 + "ms";
+                            card.classList.add("visible");
+                        } else {
+                            card.classList.remove("visible");
+                        }
+                    });
+                },
+                { threshold: 0.12, rootMargin: "0px 0px -30px 0px" },
+            );
+
+            cards.forEach((card) => toolObs.observe(card));
+
+            // WIP badges
+            const NO_WIP = ["iggy", "aga"];
+            document.querySelectorAll(".tool-card").forEach((card) => {
+                const name = card
+                    .querySelector(".tool-name")
+                    .textContent.trim();
+                const head = card.querySelector(".tool-head");
+                const badge = head.querySelector(".tool-badge");
+
+                // Wrap badge in right-side container
+                const right = document.createElement("div");
+                right.className = "tool-head-right";
+                right.appendChild(badge);
+
+                if (!NO_WIP.includes(name)) {
+                    const wip = document.createElement("span");
+                    wip.className = "wip-badge";
+                    wip.textContent = "WIP";
+                    right.appendChild(wip);
+                }
+
+                head.appendChild(right);
+            });
+        </script>
+    </body>
+</html>
